@@ -1,0 +1,18 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "zide-typewriter-game",
+  "account_id": "12905997cdfda650856fb9608d9e665e",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-09-28",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "routes": [
+    { "pattern": "edu.alading.org/games/", "zone_name": "alading.org" },
+    { "pattern": "edu.alading.org/games/typewriter", "zone_name": "alading.org" },
+    { "pattern": "edu.alading.org/games/typewriter/*", "zone_name": "alading.org" }
+  ],
+  "workers_dev": false
+}
