@@ -1,4 +1,12 @@
 import { LEVELS, backspace, createGame, currentLine, returnCarriage, score, stars, typeCharacter } from "./logic.mjs";
+import { applyLocale, english, levelCopy, msg } from "./locale.mjs";
+
+applyLocale();
+document.querySelector(english ? "#lang-en" : "#lang-zh").setAttribute("aria-current", "page");
+if (location.hostname === "lsdlyu.github.io") {
+  document.querySelector("#lang-zh").href = "./";
+  document.querySelector("#lang-en").href = "./?lang=en";
+}
 
 const STORAGE_KEY = "zide-typewriter-v1";
 const canVibrate = typeof navigator.vibrate === "function";
@@ -129,9 +137,12 @@ function renderLevels() {
     button.className = "level-button";
     button.disabled = index > progress.unlocked;
     if (index === game.levelIndex) button.setAttribute("aria-current", "step");
-    const status = Number.isFinite(progress.best[index]) ? "已完成" : index > progress.unlocked ? "未解锁" : "可开始";
-    button.setAttribute("aria-label", `第 ${index + 1} 关，${level.title}，${status}`);
-    button.innerHTML = `<span class="level-number">${String(index + 1).padStart(2, "0")}</span><span class="level-name">${level.title}</span><span class="level-status">${status}</span>`;
+    const title = english ? levelCopy[index].title : level.title;
+    const status = Number.isFinite(progress.best[index]) ? (msg?.completed || "已完成") : index > progress.unlocked ? (msg?.locked || "未解锁") : (msg?.ready || "可开始");
+    button.setAttribute("aria-label", english ? msg.levelAria(index + 1, title, status) : `第 ${index + 1} 关，${title}，${status}`);
+    button.innerHTML = `<span class="level-number">${String(index + 1).padStart(2, "0")}</span><span class="level-name"></span><span class="level-status"></span>`;
+    button.querySelector(".level-name").textContent = title;
+    button.querySelector(".level-status").textContent = status;
     button.addEventListener("click", () => startLevel(index));
     list.append(button);
   });
@@ -140,17 +151,17 @@ function renderLevels() {
 function render() {
   const level = LEVELS[game.levelIndex];
   const line = currentLine(game);
-  $("level-label").textContent = `${String(game.levelIndex + 1).padStart(2, "0")} / 05 · ${level.label}`;
-  $("level-title").textContent = level.title;
-  $("level-intro").textContent = level.introduction;
+  $("level-label").textContent = `${String(game.levelIndex + 1).padStart(2, "0")} / 05 · ${english ? levelCopy[game.levelIndex].label : level.label}`;
+  $("level-title").textContent = english ? levelCopy[game.levelIndex].title : level.title;
+  $("level-intro").textContent = english ? levelCopy[game.levelIndex].introduction : level.introduction;
   $("target-text").textContent = line.text;
-  $("target-hint").textContent = line.hint;
-  $("line-progress").textContent = `第 ${game.lineIndex + 1} 行，共 ${level.lines.length} 行${line.ink ? ` · 本行需用${line.ink === "red" ? "红" : "黑"}墨` : ""}`;
+  $("target-hint").textContent = english ? levelCopy[game.levelIndex].hints[game.lineIndex] : line.hint;
+  $("line-progress").textContent = english ? msg.lineProgress(game.lineIndex + 1, level.lines.length, line.ink) : `第 ${game.lineIndex + 1} 行，共 ${level.lines.length} 行${line.ink ? ` · 本行需用${line.ink === "red" ? "红" : "黑"}墨` : ""}`;
   $("score").textContent = String(score(game));
   $("errors").textContent = String(game.errors);
   $("paper-level").textContent = `${String(game.levelIndex + 1).padStart(2, "0")} / 05`;
   $("return-button").disabled = game.phase !== "return";
-  $("ink-note").textContent = `${ink === "red" ? "红" : "黑"}色墨迹`;
+  $("ink-note").textContent = english ? msg.inkNote(ink) : `${ink === "red" ? "红" : "黑"}色墨迹`;
   document.querySelectorAll("[data-ink]").forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.ink === ink)));
   renderPaper();
   renderLevels();
@@ -161,30 +172,32 @@ function startLevel(index) {
   game = createGame(index);
   ink = "black";
   if (dialog.open) dialog.close();
-  announce("新纸张已放好。开始敲击第一个字母吧。");
+  announce(msg?.newPaper || "新纸张已放好。开始敲击第一个字母吧。");
   render();
 }
 
 function handleCharacter(character) {
   if (dialog.open) return;
   if (game.phase === "return") {
-    announce("这一行已经打好，请拉动回车杆。");
+    announce(msg?.lineReady || "这一行已经打好，请拉动回车杆。");
     return;
   }
   if (game.phase === "complete") return;
   const before = game;
   game = typeCharacter(game, character, ink);
   if (before === game) {
-    if (game.imprints.length >= currentLine(game).text.length) announce("这一行还没有完全正确，先用退格键修正。");
+    if (game.imprints.length >= currentLine(game).text.length) announce(msg?.fixLine || "这一行还没有完全正确，先用退格键修正。");
     return;
   }
   const imprint = game.imprints.at(-1);
   animateStrike(imprint.char);
   playSound(imprint.correct ? "key" : "wrong");
   if (!imprint.correct) vibrate([12, 25, 12]);
-  if (game.phase === "return") announce("打对了！现在拉动回车杆换行。");
-  else if (!imprint.correct) announce(`这里应输入 ${currentLine(game).text[game.imprints.length - 1] === " " ? "空格" : currentLine(game).text[game.imprints.length - 1]}${currentLine(game).ink && ink !== currentLine(game).ink ? `，并切换${currentLine(game).ink === "red" ? "红" : "黑"}墨` : ""}。用退格键修正。`);
-  else announce("字锤落下，墨迹留在纸上。继续吧。");
+  if (game.phase === "return") announce(msg?.correct || "打对了！现在拉动回车杆换行。");
+  else if (!imprint.correct) {
+    const expected = currentLine(game).text[game.imprints.length - 1];
+    announce(english ? msg.wrong(expected === " " ? "Space" : expected, currentLine(game).ink && ink !== currentLine(game).ink ? currentLine(game).ink : "") : `这里应输入 ${expected === " " ? "空格" : expected}${currentLine(game).ink && ink !== currentLine(game).ink ? `，并切换${currentLine(game).ink === "red" ? "红" : "黑"}墨` : ""}。用退格键修正。`);
+  } else announce(msg?.strike || "字锤落下，墨迹留在纸上。继续吧。");
   render();
 }
 
@@ -194,7 +207,7 @@ function handleBackspace() {
   game = backspace(game);
   if (before === game) return;
   playSound("key");
-  announce("退回一格，重新敲这个字母。");
+  announce(msg?.backspace || "退回一格，重新敲这个字母。");
   render();
 }
 
@@ -204,16 +217,16 @@ function showCompletion() {
   progress.best[game.levelIndex] = Math.max(progress.best[game.levelIndex] || 0, points);
   progress.unlocked = Math.max(progress.unlocked, Math.min(LEVELS.length - 1, game.levelIndex + 1));
   saveStorage();
-  $("complete-summary").textContent = `第 ${game.levelIndex + 1} 关完成 · ${points} 分 · ${game.errors} 次失误。${game.levelIndex < LEVELS.length - 1 ? "下一关已经解锁。" : "五关都完成了！"}`;
+  $("complete-summary").textContent = english ? msg.completeSummary(game.levelIndex + 1, points, game.errors, game.levelIndex === LEVELS.length - 1) : `第 ${game.levelIndex + 1} 关完成 · ${points} 分 · ${game.errors} 次失误。${game.levelIndex < LEVELS.length - 1 ? "下一关已经解锁。" : "五关都完成了！"}`;
   const starsRow = $("complete-stars");
   starsRow.replaceChildren();
-  starsRow.setAttribute("aria-label", `获得 ${rating} 颗星，共 3 颗`);
+  starsRow.setAttribute("aria-label", english ? msg.stars(rating) : `获得 ${rating} 颗星，共 3 颗`);
   for (let index = 0; index < 3; index += 1) {
     const star = document.createElement("span");
     star.className = `star ${index < rating ? "" : "empty"}`;
     starsRow.append(star);
   }
-  $("next-button").textContent = game.levelIndex < LEVELS.length - 1 ? "下一关" : "返回关卡";
+  $("next-button").textContent = game.levelIndex < LEVELS.length - 1 ? (msg?.next || "下一关") : (msg?.levels || "返回关卡");
   const sparks = $("completion-spark");
   sparks.replaceChildren();
   for (let index = 0; index < 5; index += 1) {
@@ -230,7 +243,7 @@ function handleReturn() {
   const before = game;
   game = returnCarriage(game);
   if (before === game) {
-    announce("先把这一行准确打完，再拉回车杆。" );
+    announce(msg?.finishLineFirst || "先把这一行准确打完，再拉回车杆。" );
     return;
   }
   machine.classList.remove("returning");
@@ -243,10 +256,10 @@ function handleReturn() {
   vibrate([18, 28, 12]);
   render();
   if (game.phase === "complete") {
-    announce("这封纸上电报写好了！");
+    announce(msg?.telegramDone || "这封纸上电报写好了！");
     showCompletion();
   } else {
-    announce("纸张前进一行。继续打印下一行。" );
+    announce(msg?.nextLine || "纸张前进一行。继续打印下一行。" );
   }
 }
 
@@ -261,7 +274,7 @@ function buildKeyboard() {
       button.className = "key";
       button.dataset.key = letter;
       button.textContent = letter;
-      button.setAttribute("aria-label", `输入字母 ${letter}`);
+      button.setAttribute("aria-label", english ? `Type letter ${letter}` : `输入字母 ${letter}`);
       button.addEventListener("click", () => handleCharacter(letter));
       row.append(button);
     }
@@ -269,13 +282,13 @@ function buildKeyboard() {
   }
   const row = document.createElement("div");
   row.className = "keyboard-row";
-  for (const [character, label, className] of [[" ", "SPACE · 空格", "wide"], [".", ".", "special"]]) {
+  for (const [character, label, className] of [[" ", english ? "SPACE" : "SPACE · 空格", "wide"], [".", ".", "special"]]) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `key ${className}`;
     button.dataset.key = character;
     button.textContent = label;
-    button.setAttribute("aria-label", character === " " ? "输入空格" : "输入句点");
+    button.setAttribute("aria-label", english ? (character === " " ? "Type space" : "Type period") : (character === " " ? "输入空格" : "输入句点"));
     button.addEventListener("click", () => handleCharacter(character));
     row.append(button);
   }
@@ -290,7 +303,7 @@ $("return-button").addEventListener("click", handleReturn);
 $("backspace-button").addEventListener("click", handleBackspace);
 document.querySelectorAll("[data-ink]").forEach((button) => button.addEventListener("click", () => {
   ink = button.dataset.ink;
-  announce(`色带已切到${ink === "red" ? "红" : "黑"}色。`);
+  announce(english ? msg.ribbonChanged(ink) : `色带已切到${ink === "red" ? "红" : "黑"}色。`);
   render();
 }));
 $("replay-button").addEventListener("click", () => startLevel(game.levelIndex));
@@ -304,7 +317,7 @@ for (const [setting, elementId] of [["sound", "sound-toggle"], ["vibration", "vi
   input.checked = settings[setting];
   if (setting === "vibration" && !canVibrate) {
     input.disabled = true;
-    input.parentElement.title = "此设备或浏览器不支持震动";
+    input.parentElement.title = msg?.vibrationUnsupported || "此设备或浏览器不支持震动";
   }
   input.addEventListener("change", () => {
     settings[setting] = input.checked;

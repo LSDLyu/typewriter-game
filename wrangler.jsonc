@@ -11,7 +11,9 @@
   },
   "routes": [
     { "pattern": "edu.alading.org/games/typewriter", "zone_name": "alading.org" },
-    { "pattern": "edu.alading.org/games/typewriter/*", "zone_name": "alading.org" }
+    { "pattern": "edu.alading.org/games/typewriter/*", "zone_name": "alading.org" },
+    { "pattern": "edu.alading.org/en/games/typewriter", "zone_name": "alading.org" },
+    { "pattern": "edu.alading.org/en/games/typewriter/*", "zone_name": "alading.org" }
   ],
   "workers_dev": false
 }
