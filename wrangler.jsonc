@@ -10,7 +10,6 @@
     "run_worker_first": true
   },
   "routes": [
-    { "pattern": "edu.alading.org/games/", "zone_name": "alading.org" },
     { "pattern": "edu.alading.org/games/typewriter", "zone_name": "alading.org" },
     { "pattern": "edu.alading.org/games/typewriter/*", "zone_name": "alading.org" }
   ],
