@@ -3,7 +3,7 @@
 以 1950 年代便携式机械打字机为灵感的家庭英语打字游戏。五关依次练习字母、空格、句子与双色色带；每行准确打完后，拉动回车杆继续。桌面键盘和手机屏幕键帽都可操作。
 
 - 正式路径：<https://edu.alading.org/games/typewriter/>
-- 独立预览：<https://lsdlyu.github.io/typewriter-game/>（需启用 GitHub Pages 的 GitHub Actions 来源）
+- 独立试玩：<https://lsdlyu.github.io/typewriter-game/>
 - 纯前端，无后端、追踪脚本或外部字体请求。通关和设置仅存于当前浏览器。
 
 ## 玩法
@@ -18,6 +18,8 @@
 
 ## 部署
 
-`wrangler.jsonc` 把游戏放在 `/games/typewriter/`，并在 `/games/` 的现有目录页面追加第三张游戏卡片。目录请求继续交给原有的自得学园 Worker 生成；本 Worker 只插入新入口，不改动数学路径怪探或 Lisa 的游戏路径。发布前需确认 Cloudflare 授权、站点路由和原目录仍可访问。
+线上 `/games/` 目录由现有 `lisa-games-router` Worker 生成。`integration/router-extension.js` 是追加到该 Worker 源码末尾的接入代码：为目录增加第三张卡片，并把 `/games/typewriter/` 及其静态资源转发到本仓库的 GitHub Pages。修改目录时须保留数学路径怪探和 Lisa 的现有路由并验证三个入口。
 
-GitHub Pages 工作流只发布 `public/` 下的静态文件。正式站点通过 Cloudflare Worker 路由服务，部署方式为 `npm install && npm run deploy`。
+`worker.mjs` 和 `wrangler.jsonc` 提供独立 Cloudflare 静态资源部署方案，只匹配 `/games/typewriter` 和其子路径，绝不接管 `/games/` 目录。若使用独立 Worker，还需在目录 Worker 中加入卡片入口。
+
+GitHub Pages 工作流只发布 `public/` 下的静态文件。正式站点当前通过已有的目录 Worker 转发此预览地址。
