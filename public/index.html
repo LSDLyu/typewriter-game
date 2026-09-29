@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4ecde" />
+    <meta name="description" content="用复古机械打字机完成英文单词和句子任务。敲键、换色带、拉回车杆，五关逐步解锁。" />
+    <title>纸上电报局｜机械打字机游戏｜自得学园</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./game.mjs"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#game">跳到游戏</a>
+    <header class="site-header">
+      <a class="brand" href="https://edu.alading.org/" aria-label="自得学园首页">
+        <span class="brand-mark" aria-hidden="true">学</span>
+        <span><strong>自得学园</strong><small>ZIDE LEARNING</small></span>
+      </a>
+      <a class="return-link" href="https://edu.alading.org/games/">返回学习游戏 <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <main id="game" class="page-shell">
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">学习游戏 / 英语 · 字母与单词</p>
+          <h1 id="page-title">纸上电报局<span class="title-period">.</span></h1>
+          <p class="intro-copy">把一个个字母敲成纸上的消息。按键、换色带，再拉动回车杆，让纸张慢慢写满。</p>
+        </div>
+        <p class="edition">QUIET TAB<br />TYPE LAB <span>·</span> 1950s INSPIRED</p>
+      </section>
+
+      <div class="game-layout">
+        <aside class="mission-panel" aria-label="任务与设置">
+          <div class="panel-heading">
+            <span class="panel-index">任务档案 / 01—05</span>
+            <span class="panel-rule" aria-hidden="true"></span>
+          </div>
+          <div class="active-mission">
+            <p id="level-label" class="mission-label"></p>
+            <h2 id="level-title"></h2>
+            <p id="level-intro"></p>
+            <div class="target-box">
+              <span>现在要打印</span>
+              <strong id="target-text"></strong>
+              <p id="target-hint"></p>
+            </div>
+            <p id="line-progress" class="line-progress"></p>
+          </div>
+          <div class="score-row">
+            <div><span>当前分数</span><strong id="score">0</strong></div>
+            <div><span>失误次数</span><strong id="errors">0</strong></div>
+          </div>
+          <div class="level-list-wrap">
+            <h3>选择关卡</h3>
+            <div id="level-list" class="level-list" role="group" aria-label="选择关卡"></div>
+          </div>
+          <details class="how-to">
+            <summary>玩法与体验设置</summary>
+            <p>按实体键盘或屏幕上的圆形键帽输入。输错时用退格键修正；整行正确后，拉动回车杆进入下一行。</p>
+            <div class="settings">
+              <label><input id="sound-toggle" type="checkbox" checked /> 打字音效</label>
+              <label><input id="vibration-toggle" type="checkbox" checked /> 轻量震动</label>
+              <label><input id="motion-toggle" type="checkbox" checked /> 完成动画</label>
+            </div>
+          </details>
+        </aside>
+
+        <section class="play-area" aria-label="机械打字机">
+          <div id="typewriter" class="typewriter">
+            <div class="top-metal">
+              <span class="model-stamp">DE LUXE <span>·</span> QUIET TAB</span>
+              <span class="serial-stamp">No. 1956 — A</span>
+            </div>
+            <div class="carriage-zone">
+              <button id="return-lever" class="return-lever" type="button" aria-label="拉动回车杆，完成本行并换行" title="回车杆 · Enter">
+                <span class="lever-arm" aria-hidden="true"></span>
+                <span class="lever-knob" aria-hidden="true"></span>
+              </button>
+              <div class="roller" aria-hidden="true"><span></span></div>
+              <div id="paper" class="paper">
+                <div class="paper-heading"><span>自得学园 · 纸上电报局</span><span id="paper-level">01 / 05</span></div>
+                <div id="paper-lines" class="paper-lines" aria-label="已打印的纸张内容"></div>
+                <div class="paper-footer">TYPE WITH CARE · SEND WITH JOY</div>
+              </div>
+              <div class="paper-guide left" aria-hidden="true"></div>
+              <div class="paper-guide right" aria-hidden="true"></div>
+            </div>
+            <div class="mechanism" aria-hidden="true">
+              <div class="ribbon-spool left"><span></span></div>
+              <div id="typebars" class="typebars"></div>
+              <div class="ribbon-spool right"><span></span></div>
+              <div id="hammer" class="hammer"></div>
+              <div class="ribbon-strip"></div>
+            </div>
+            <div class="ribbon-controls">
+              <span>色带 / RIBBON</span>
+              <div class="ribbon-switch" role="group" aria-label="色带颜色">
+                <button type="button" data-ink="black" aria-pressed="true">黑墨</button>
+                <button type="button" data-ink="red" aria-pressed="false">红墨</button>
+              </div>
+              <span id="ink-note" class="ink-note">黑色墨迹</span>
+            </div>
+            <div class="keyboard-shell">
+              <div class="key-row side-row"><span>CL</span><span>SET</span></div>
+              <div id="keyboard" class="keyboard" aria-label="屏幕打字机键盘"></div>
+              <div class="machine-footer"><span>UNDERWOOD STYLE</span><span>FINGER FORM KEYS</span></div>
+            </div>
+          </div>
+          <div class="play-controls">
+            <button id="backspace-button" class="secondary-button" type="button">退格修正 <kbd>⌫</kbd></button>
+            <p id="feedback" role="status" aria-live="polite">敲击第一个字母，让纸张开始说话。</p>
+            <button id="return-button" class="primary-button" type="button">拉动回车杆 <kbd>↵</kbd></button>
+          </div>
+          <p class="keyboard-note">桌面可直接使用键盘 · 手机请点击打字机键帽 · 进度仅保存在当前浏览器</p>
+        </section>
+      </div>
+    </main>
+
+    <dialog id="complete-dialog" class="complete-dialog" aria-labelledby="complete-title">
+      <div class="complete-inner">
+        <p class="eyebrow">电报送达 / MISSION COMPLETE</p>
+        <div id="completion-spark" class="completion-spark" aria-hidden="true"></div>
+        <h2 id="complete-title">这一页写好了！</h2>
+        <p id="complete-summary"></p>
+        <p id="complete-stars" class="complete-stars" aria-label="本关星级"></p>
+        <div class="complete-actions">
+          <button id="replay-button" class="secondary-button" type="button">再打一遍</button>
+          <button id="next-button" class="primary-button" type="button">下一关</button>
+        </div>
+      </div>
+    </dialog>
+
+    <footer class="site-footer">自得学园出品 <span aria-hidden="true">·</span> ChatGPT 协力 · 人工复核 <span aria-hidden="true">·</span> 不收集个人资料</footer>
+  </body>
+</html>
