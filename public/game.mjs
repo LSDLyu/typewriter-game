@@ -1,3 +1,4 @@
+import { IrisAudio } from "./iris-audio.mjs";
 import { LEVELS, backspace, createGame, currentLine, returnCarriage, score, stars, typeCharacter } from "./logic.mjs";
 import { applyLocale, english, levelCopy, msg } from "./locale.mjs";
 
@@ -20,6 +21,11 @@ const settings = {
   vibration: stored.settings?.vibration !== false && canVibrate,
   motion: stored.settings?.motion !== false,
 };
+const voice = new IrisAudio('./iris/', english ? 'en' : 'zh');
+voice.setEnabled(settings.sound);
+const targetAudio = {"CAT": "audio/words/en/cat.mp3", "SUN": "audio/words/en/sun.mp3", "HELLO": "audio/typewriter/en/hello.mp3", "GOOD DAY": "audio/typewriter/en/good_day.mp3", "I CAN TYPE.": "audio/typewriter/en/i_can_type.mp3", "YOU CAN TOO.": "audio/typewriter/en/you_can_too.mp3", "RED ROSE": "audio/typewriter/en/red_rose.mp3", "BLUE SKY": "audio/typewriter/en/blue_sky.mp3", "MAKE A WISH.": "audio/typewriter/en/make_a_wish.mp3", "KEEP LEARNING.": "audio/typewriter/en/keep_learning.mp3", "THE END.": "audio/typewriter/en/the_end.mp3"};
+function readTarget() { const file = targetAudio[currentLine(game).text]; if (file) voice.say(file); }
+document.addEventListener('visibilitychange', () => { if (document.hidden) voice.stop(); });
 let game = createGame(0);
 let ink = "black";
 let audioContext;
@@ -53,6 +59,7 @@ function announce(message) {
 
 function playSound(kind) {
   if (!settings.sound) return;
+  if (kind === "wrong") { voice.effect("04_gentle_retry", 1500); voice.prompt("typewriter_fix", 12000); return; }
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
   try {
@@ -169,7 +176,9 @@ function render() {
 
 function startLevel(index) {
   if (index > progress.unlocked) return;
+  voice.stop();
   game = createGame(index);
+  readTarget();
   ink = "black";
   if (dialog.open) dialog.close();
   announce(msg?.newPaper || "新纸张已放好。开始敲击第一个字母吧。");
@@ -193,7 +202,7 @@ function handleCharacter(character) {
   animateStrike(imprint.char);
   playSound(imprint.correct ? "key" : "wrong");
   if (!imprint.correct) vibrate([12, 25, 12]);
-  if (game.phase === "return") announce(msg?.correct || "打对了！现在拉动回车杆换行。");
+  if (game.phase === "return") { announce(msg?.correct || "打对了！现在拉动回车杆换行。"); voice.prompt("typewriter_return"); }
   else if (!imprint.correct) {
     const expected = currentLine(game).text[game.imprints.length - 1];
     announce(english ? msg.wrong(expected === " " ? "Space" : expected, currentLine(game).ink && ink !== currentLine(game).ink ? currentLine(game).ink : "") : `这里应输入 ${expected === " " ? "空格" : expected}${currentLine(game).ink && ink !== currentLine(game).ink ? `，并切换${currentLine(game).ink === "red" ? "红" : "黑"}墨` : ""}。用退格键修正。`);
@@ -212,6 +221,7 @@ function handleBackspace() {
 }
 
 function showCompletion() {
+  voice.stop(); voice.effect("05_level_complete"); voice.prompt("typewriter_done");
   const points = score(game);
   const rating = stars(game);
   progress.best[game.levelIndex] = Math.max(progress.best[game.levelIndex] || 0, points);
@@ -259,6 +269,7 @@ function handleReturn() {
     announce(msg?.telegramDone || "这封纸上电报写好了！");
     showCompletion();
   } else {
+    readTarget();
     announce(msg?.nextLine || "纸张前进一行。继续打印下一行。" );
   }
 }
@@ -297,6 +308,10 @@ function buildKeyboard() {
   for (let index = 0; index < 25; index += 1) bars.append(document.createElement("span"));
 }
 
+const listenButton = document.createElement('button');
+listenButton.type = 'button'; listenButton.textContent = english ? 'Listen to this line' : '听一听这一行';
+listenButton.addEventListener('click', () => { if (!settings.sound) { settings.sound = true; $('sound-toggle').checked = true; voice.setEnabled(true); saveStorage(); } readTarget(); });
+$('target-text').after(listenButton);
 buildKeyboard();
 $("return-lever").addEventListener("click", handleReturn);
 $("return-button").addEventListener("click", handleReturn);
@@ -321,6 +336,7 @@ for (const [setting, elementId] of [["sound", "sound-toggle"], ["vibration", "vi
   }
   input.addEventListener("change", () => {
     settings[setting] = input.checked;
+    if (setting === "sound") { voice.setEnabled(input.checked); if (input.checked) readTarget(); }
     saveStorage();
   });
 }

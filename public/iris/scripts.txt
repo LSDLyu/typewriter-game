@@ -1,0 +1,25 @@
+word_cat | en | cat | audio/words/en/cat.mp3
+word_sun | en | sun | audio/words/en/sun.mp3
+typewriter_target_03 | en | Hello. | audio/typewriter/en/hello.mp3
+typewriter_target_04 | en | Good day. | audio/typewriter/en/good_day.mp3
+typewriter_target_05 | en | I can type. | audio/typewriter/en/i_can_type.mp3
+typewriter_target_06 | en | You can too. | audio/typewriter/en/you_can_too.mp3
+typewriter_target_07 | en | Red rose. | audio/typewriter/en/red_rose.mp3
+typewriter_target_08 | en | Blue sky. | audio/typewriter/en/blue_sky.mp3
+typewriter_target_09 | en | Make a wish. | audio/typewriter/en/make_a_wish.mp3
+typewriter_target_10 | en | Keep learning. | audio/typewriter/en/keep_learning.mp3
+typewriter_target_11 | en | The end. | audio/typewriter/en/the_end.mp3
+common_start_zh | zh | 开始游戏。 | audio/prompts/zh/common_start.mp3
+common_start_en | en | Start game. | audio/prompts/en/common_start.mp3
+common_continue_zh | zh | 继续。 | audio/prompts/zh/common_continue.mp3
+common_continue_en | en | Continue. | audio/prompts/en/common_continue.mp3
+common_correct_zh | zh | 答对啦！ | audio/prompts/zh/common_correct.mp3
+common_correct_en | en | Correct! | audio/prompts/en/common_correct.mp3
+common_listen_again_zh | zh | 再听一次。 | audio/prompts/zh/common_listen_again.mp3
+common_listen_again_en | en | Listen again. | audio/prompts/en/common_listen_again.mp3
+typewriter_return_zh | zh | 这一行已经打好，请拉动回车杆。 | audio/prompts/zh/typewriter_return.mp3
+typewriter_return_en | en | This line is finished. Pull the return lever. | audio/prompts/en/typewriter_return.mp3
+typewriter_fix_zh | zh | 这一行还没有完全正确，先用退格键修正。 | audio/prompts/zh/typewriter_fix.mp3
+typewriter_fix_en | en | This line is not quite right. Use Backspace to fix it. | audio/prompts/en/typewriter_fix.mp3
+typewriter_done_zh | zh | 这封纸上电报写好了！ | audio/prompts/zh/typewriter_done.mp3
+typewriter_done_en | en | Your paper telegram is ready! | audio/prompts/en/typewriter_done.mp3

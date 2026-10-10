@@ -1,5 +1,5 @@
 const GAME_PATHS = ["/games/typewriter", "/en/games/typewriter"];
-const ASSET_PATHS = new Set(["/index.html", "/style.css", "/game.mjs", "/logic.mjs", "/locale.mjs"]);
+const ASSET_PATHS = new Set(["/index.html", "/style.css", "/game.mjs", "/logic.mjs", "/locale.mjs", "/iris-audio.mjs"]);
 
 export default {
   async fetch(request, env) {
@@ -13,7 +13,7 @@ export default {
     }
     const suffix = url.pathname.slice(gamePath.length);
     const assetPath = suffix === "" || suffix === "/" ? "/index.html" : suffix;
-    if (!ASSET_PATHS.has(assetPath)) {
+    if (!ASSET_PATHS.has(assetPath) && !/^\/iris\/(?:audio\/(?:prompts\/(?:zh|en)|words\/en|typewriter\/en)|sfx)\/[a-z0-9_-]+\.mp3$/.test(assetPath)) {
       return new Response("Not found", { status: 404 });
     }
     const response = await env.ASSETS.fetch(new Request(new URL(assetPath, url.origin), request));
