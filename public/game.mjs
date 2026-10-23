@@ -1,3 +1,4 @@
+import { targetAudio } from "./target-audio.mjs";
 import { IrisAudio } from "./iris-audio.mjs";
 import { LEVELS, backspace, createGame, currentLine, returnCarriage, score, stars, typeCharacter } from "./logic.mjs";
 import { applyLocale, english, levelCopy, msg } from "./locale.mjs";
@@ -23,7 +24,7 @@ const settings = {
 };
 const voice = new IrisAudio('./iris/', english ? 'en' : 'zh');
 voice.setEnabled(settings.sound);
-const targetAudio = {"CAT": "audio/words/en/cat.mp3", "SUN": "audio/words/en/sun.mp3", "HELLO": "audio/typewriter/en/hello.mp3", "GOOD DAY": "audio/typewriter/en/good_day.mp3", "I CAN TYPE.": "audio/typewriter/en/i_can_type.mp3", "YOU CAN TOO.": "audio/typewriter/en/you_can_too.mp3", "RED ROSE": "audio/typewriter/en/red_rose.mp3", "BLUE SKY": "audio/typewriter/en/blue_sky.mp3", "MAKE A WISH.": "audio/typewriter/en/make_a_wish.mp3", "KEEP LEARNING.": "audio/typewriter/en/keep_learning.mp3", "THE END.": "audio/typewriter/en/the_end.mp3"};
+
 function readTarget() { const file = targetAudio[currentLine(game).text]; if (file) voice.say(file); }
 document.addEventListener('visibilitychange', () => { if (document.hidden) voice.stop(); });
 let game = createGame(0);
@@ -309,9 +310,15 @@ function buildKeyboard() {
 }
 
 const listenButton = document.createElement('button');
+listenButton.className = 'secondary-button listen-button';
 listenButton.type = 'button'; listenButton.textContent = english ? 'Listen to this line' : '听一听这一行';
 listenButton.addEventListener('click', () => { if (!settings.sound) { settings.sound = true; $('sound-toggle').checked = true; voice.setEnabled(true); saveStorage(); } readTarget(); });
 $('target-text').after(listenButton);
+const audioCredit = document.createElement('a');
+audioCredit.href = english ? 'audio/credits-en.html' : 'audio/credits.html';
+audioCredit.textContent = english ? 'Word audio sources' : '单词录音来源';
+audioCredit.className = 'audio-credit';
+listenButton.after(audioCredit);
 buildKeyboard();
 $("return-lever").addEventListener("click", handleReturn);
 $("return-button").addEventListener("click", handleReturn);
