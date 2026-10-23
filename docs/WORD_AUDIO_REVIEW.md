@@ -1,11 +1,13 @@
-# 单词声音检查（2026-10-23，草稿）
+# 单词声音检查（2026-10-23，待发布）
 
-正式站点 `https://edu.alading.org/games/typewriter/game.mjs` 与本次修改前 main 完全一致，3 个独立单词和 8 段完整短句使用 Iris 合成录音。素材清单未标记为已试听；这本身不能证明读错，但缺少发音复核记录。
+CAT、SUN、HELLO 已全部改用 Wikimedia Commons 的真人美式英语录音。CAT、SUN 为 Dvortygirl 的 CC BY-SA 3.0 录音；HELLO 为同一作者的 PD-self 公有领域录音。任务区提供来源入口，中英文页面保留作者、原始文件页面、许可/公有领域状态和转换说明。重听按钮沿用网站样式，至少 44 px 高。
 
-本分支先把 CAT 接到既有 Wikimedia Commons 美式真人录音，作者 Dvortygirl，CC BY-SA 3.0。录音由 number-path-game 仓库中的同一份已署名 MP3 复用，不是本次新下载；文件字节未修改。任务区新增来源入口与中英文说明，列出原始页面、作者、许可和格式转换说明。朗读按钮沿用网站样式，至少 44 px 高。原有单路语音、静音与后台停止逻辑保留。
+原始 Ogg 与 Commons 提供的 SHA-1 一致，再转为单声道 MP3 并施加固定音量增益；不剪切、不变速、不变调。署名记录包含来源修订号、原始媒体和 MP3 哈希、增益值、解码后的时长与电平。CAT/SUN 与 Lisa 使用相同 MP3 字节。其他 8 段完整短句和提示语保留连贯的 Iris 录音。
 
-SUN、HELLO 仍待获取适合的真人录音。整句不使用零散词典片段拼接。不能把本分支称为全游戏发音替换已完成，也不应直接合并：main 自动发布 Pages，正式站点转发该版本。
+网络白名单已配置并实际通过 HTTP 200 检查；原先缺少 SUN、HELLO 的阻塞已解决。关联 Lisa 草稿和八款游戏的声音盘点：<https://github.com/LSDLyu/number-path-game/pull/2>。
 
-云开发环境访问维基媒体被域名白名单拦截。已保存新增 en.wiktionary.org、commons.wikimedia.org、upload.wikimedia.org 的配置草稿，需在环境设置保存并发布开发环境后重新确认访问。此动作与网站发布不同。
+验证：10 项 Node 测试通过，覆盖 11 个目标映射、3 个真人单词的文件与哈希、中英 Worker 路由。浏览器使用原生媒体和真实按钮操作核查 CAT、换行后的 SUN、切换关卡后的 HELLO，以及桌面、手机、iPad 尺寸的来源入口与布局；不模拟成功播放。
 
-验证：10 项 Node 测试通过；28 个 MP3 解码通过；桌面、手机、iPad 尺寸的 Chromium 原生 CAT 播放与来源入口通过，无页面异常或横向溢出。检查没有模拟媒体播放；不代表真实 iPad Safari 扬声器或人工发音试听通过。完整扫描及 11 组离线对比页记录在相关 number-path-game 草稿中。
+录音未标记为经人工逐词试听认可；53 组离线对比页可用于试听。视口模拟也不代表真实 iPad Safari 扬声器验证。保留 `pronunciation_listened: false`。
+
+尚未合并或发布。main 自动发布 Pages，正式站点转发该版本；本次没有更改 Cloudflare 配置。

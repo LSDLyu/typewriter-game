@@ -1,8 +1,8 @@
 // Paths are relative to the shared Iris narration channel (iris/).
 export const targetAudio = {
   "CAT": "../audio/cat.mp3",
-  "SUN": "audio/words/en/sun.mp3",
-  "HELLO": "audio/typewriter/en/hello.mp3",
+  "SUN": "../audio/sun.mp3",
+  "HELLO": "../audio/hello.mp3",
   "GOOD DAY": "audio/typewriter/en/good_day.mp3",
   "I CAN TYPE.": "audio/typewriter/en/i_can_type.mp3",
   "YOU CAN TOO.": "audio/typewriter/en/you_can_too.mp3",

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { targetAudio } from '../public/target-audio.mjs';
 import { LEVELS } from '../public/logic.mjs';
 import worker from '../worker.mjs';
@@ -16,16 +17,20 @@ test('all eleven targets resolve to real recordings; Commons words have exact at
       assert.equal(path, '../' + credit.file);
       assert.ok(credit.author && credit.changes);
       assert.match(credit.source, /^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
-      assert.match(credit.license.url, /^https:\/\/creativecommons\.org\//);
+      assert.ok(credit.license.url.startsWith('https://creativecommons.org/') || credit.license.url === 'https://commons.wikimedia.org/wiki/Template:PD-self');
+      assert.equal(credit.accent, 'en-US');
+      assert.equal(createHash('sha256').update(readFileSync(new URL('../public/' + credit.file, import.meta.url))).digest('hex'), credit.sha256);
     }
   }
   assert.equal(targetAudio.CAT, '../audio/cat.mp3');
+  assert.equal(targetAudio.SUN, '../audio/sun.mp3');
+  assert.equal(targetAudio.HELLO, '../audio/hello.mp3');
 });
 
 test('both worker locales serve Commons audio and credit pages, rejecting unrelated paths', async () => {
   const env = { ASSETS: { fetch: async request => new Response(new URL(request.url).pathname) } };
   for (const base of ['/games/typewriter', '/en/games/typewriter']) {
-    for (const path of ['/audio/cat.mp3', '/audio/credits.html', '/audio/credits-en.html', '/target-audio.mjs']) {
+    for (const path of ['/audio/cat.mp3', '/audio/sun.mp3', '/audio/hello.mp3', '/audio/credits.html', '/audio/credits-en.html', '/target-audio.mjs']) {
       const result = await worker.fetch(new Request('https://edu.alading.org' + base + path), env);
       assert.equal(result.status, 200);
       assert.equal(await result.text(), path);
