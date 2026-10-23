@@ -204,3 +204,6 @@ kbd { font: 12px var(--mono); border: 1px solid currentColor; border-radius: 2px
 }
 @media (max-width: 350px) { .keyboard { --key-size: 24px; }.keyboard-row { gap: 2px; }.paper-lines { font-size: 11px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+
+.audio-credit { display: block; width: fit-content; padding: 12px 0; font-size: .85rem; text-underline-offset: 3px; }
+.listen-button { min-height: 44px; }

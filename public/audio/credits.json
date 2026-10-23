@@ -1,0 +1,86 @@
+{
+  "cat": {
+    "file": "audio/cat.mp3",
+    "title": "File:En-us-cat.ogg",
+    "original": "https://upload.wikimedia.org/wikipedia/commons/4/46/En-us-cat.ogg",
+    "source": "https://commons.wikimedia.org/wiki/File:En-us-cat.ogg",
+    "source_revision": 1229122106,
+    "original_timestamp": "2005-06-15T06:12:41Z",
+    "author": "Dvortygirl",
+    "author_evidence": "Commons extmetadata.Artist",
+    "accent": "en-US",
+    "license": {
+      "name": "CC BY-SA 3.0",
+      "url": "https://creativecommons.org/licenses/by-sa/3.0/"
+    },
+    "original_sha1": "dd8366cc15e33dbf376db99ded74ec45bfd75bae",
+    "original_sha256": "62502d6aa7d876f597101567f13a4f573a8bd32b0b57f393eb46756455a550e8",
+    "sha256": "70de2d61cf1b473e5f3a7edd3f89fce49a96fcc3809d3205f196a59f7498c823",
+    "gain_db": 3.13,
+    "audio": {
+      "duration_seconds": 0.5224,
+      "rms_dbfs": -26.27,
+      "peak_dbfs": -4.05
+    },
+    "retrieved_utc": "2026-10-23",
+    "pronunciation_listened": false,
+    "changes": "Converted to mono MP3, 44.1 kHz; constant gain +3.13 dB. No cuts, pitch or speed changes. Source licensing status retained.",
+    "accent_evidence": "https://commons.wikimedia.org/wiki/File:En-us-cat.ogg"
+  },
+  "sun": {
+    "file": "audio/sun.mp3",
+    "title": "File:En-us-Sun.ogg",
+    "original": "https://upload.wikimedia.org/wikipedia/commons/4/4b/En-us-Sun.ogg",
+    "source": "https://commons.wikimedia.org/wiki/File:En-us-Sun.ogg",
+    "source_revision": 1229108481,
+    "original_timestamp": "2007-03-14T07:28:13Z",
+    "author": "Dvortygirl",
+    "author_evidence": "Commons extmetadata.Artist",
+    "accent": "en-US",
+    "license": {
+      "name": "CC BY-SA 3.0",
+      "url": "https://creativecommons.org/licenses/by-sa/3.0/"
+    },
+    "original_sha1": "29c66a351ddd18ad9c5ef48d390409586492c36c",
+    "original_sha256": "5810bde2650c3d61828ba2d5b8a36759ade03ec32e197e360877af7619030de8",
+    "sha256": "c05270cd5189aa5382908ece033ab3372e4c0c2df809db9e38d8c7542aaa77f1",
+    "gain_db": -3.28,
+    "audio": {
+      "duration_seconds": 1.05,
+      "rms_dbfs": -24.91,
+      "peak_dbfs": -3.98
+    },
+    "retrieved_utc": "2026-10-23",
+    "pronunciation_listened": false,
+    "changes": "Converted to mono MP3, 44.1 kHz; constant gain -3.28 dB. No cuts, pitch or speed changes. Source licensing status retained.",
+    "accent_evidence": "https://commons.wikimedia.org/wiki/File:En-us-Sun.ogg"
+  },
+  "hello": {
+    "file": "audio/hello.mp3",
+    "title": "File:En-us-hello.ogg",
+    "original": "https://upload.wikimedia.org/wikipedia/commons/5/52/En-us-hello.ogg",
+    "source": "https://commons.wikimedia.org/wiki/File:En-us-hello.ogg",
+    "source_revision": 1229136883,
+    "original_timestamp": "2005-08-14T07:04:51Z",
+    "author": "Dvortygirl",
+    "author_evidence": "Commons extmetadata.Artist",
+    "accent": "en-US",
+    "license": {
+      "name": "Public domain (PD-self)",
+      "url": "https://commons.wikimedia.org/wiki/Template:PD-self"
+    },
+    "original_sha1": "4cda0527da53ae7534968dcba6ec986c243ff072",
+    "original_sha256": "ade8485f1cfd454e27ec1bb93cc0234d3187b2507230f72e96f46ac686e82972",
+    "sha256": "cb57164d1f5fc43a67ae721aa3894d363b1878bc3a4314cc42fe20d658cdb21e",
+    "gain_db": -4.54,
+    "audio": {
+      "duration_seconds": 0.4876,
+      "rms_dbfs": -24.02,
+      "peak_dbfs": -10.17
+    },
+    "retrieved_utc": "2026-10-23",
+    "pronunciation_listened": false,
+    "changes": "Converted to mono MP3, 44.1 kHz; constant gain -4.54 dB. No cuts, pitch or speed changes. Source licensing status retained.",
+    "accent_evidence": "https://commons.wikimedia.org/wiki/File:En-us-hello.ogg"
+  }
+}
