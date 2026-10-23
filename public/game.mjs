@@ -1,5 +1,6 @@
 import { targetAudio } from "./target-audio.mjs";
 import { IrisAudio } from "./iris-audio.mjs";
+import { MandarinPrompts } from "./mandarin-prompts.mjs";
 import { LEVELS, backspace, createGame, currentLine, returnCarriage, score, stars, typeCharacter } from "./logic.mjs";
 import { applyLocale, english, levelCopy, msg } from "./locale.mjs";
 
@@ -21,8 +22,11 @@ const settings = {
   sound: stored.settings?.sound !== false,
   vibration: stored.settings?.vibration !== false && canVibrate,
   motion: stored.settings?.motion !== false,
+  chineseVoice: stored.settings?.chineseVoice !== false,
 };
-const voice = new IrisAudio('./iris/', english ? 'en' : 'zh');
+const mandarin = english ? null : new MandarinPrompts();
+mandarin?.setEnabled(settings.chineseVoice);
+const voice = new IrisAudio('./iris/', english ? 'en' : 'zh', mandarin);
 voice.setEnabled(settings.sound);
 
 function readTarget() { const file = targetAudio[currentLine(game).text]; if (file) voice.say(file); }
@@ -319,6 +323,19 @@ audioCredit.href = english ? 'audio/credits-en.html' : 'audio/credits.html';
 audioCredit.textContent = english ? 'Word audio sources' : '单词录音来源';
 audioCredit.className = 'audio-credit';
 listenButton.after(audioCredit);
+if (!english) {
+  const label = document.createElement('label');
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox'; checkbox.id = 'chinese-voice-toggle'; checkbox.checked = settings.chineseVoice;
+  label.append(checkbox, ' 普通话提示');
+  const note = document.createElement('p'); note.className = 'voice-note';
+  note.textContent = '使用设备的普通话音色。没有可用音色时显示文字提示；英文发音使用录音。';
+  $('sound-toggle').closest('label').after(label, note);
+  checkbox.addEventListener('change', () => {
+    settings.chineseVoice = checkbox.checked; mandarin.setEnabled(checkbox.checked); saveStorage();
+    if (checkbox.checked && settings.sound) voice.prompt('common_continue');
+  });
+}
 buildKeyboard();
 $("return-lever").addEventListener("click", handleReturn);
 $("return-button").addEventListener("click", handleReturn);

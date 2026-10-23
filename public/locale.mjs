@@ -58,7 +58,7 @@ export function applyLocale() {
   set(".how-to summary", "How to play & settings");
   set(".how-to > p", "Type with a physical keyboard or tap the round keys. Use Backspace to correct a mistake. When a line is right, pull the return lever.");
   const settingLabels = document.querySelectorAll(".settings label");
-  ["Typing sounds", "Gentle vibration", "Completion animation"].forEach((value, index) => settingLabels[index]?.append(document.createTextNode(" " + value)));
+  ["Game sound", "Gentle vibration", "Completion animation"].forEach((value, index) => settingLabels[index]?.append(document.createTextNode(" " + value)));
   settingLabels.forEach((item) => { for (const node of [...item.childNodes]) if (node.nodeType === Node.TEXT_NODE && /[\u3400-\u9fff]/.test(node.textContent)) node.remove(); });
   label(".play-area", "Mechanical typewriter");
   label("#return-lever", "Pull the return lever to finish this line and advance");

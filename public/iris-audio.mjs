@@ -7,20 +7,28 @@ export class IrisAudio {
     last = new Map();
     enabled = true;
     generation = 0;
-    constructor(base, locale) {
+    constructor(base, locale, promptSpeaker = null) {
         this.base = base;
         this.locale = locale;
+        this.promptSpeaker = promptSpeaker;
     }
     setEnabled(value) { this.enabled = value; if (!value)
         this.stop(); }
     stop() {
+        this.promptSpeaker?.stop();
         this.generation++;
         this.voice?.pause();
         this.voice = null;
         this.effects.forEach(audio => audio.pause());
         this.effects.clear();
     }
-    prompt(name, cooldown = 0) { this.say(`audio/prompts/${this.locale}/${name}.mp3`, cooldown); }
+    prompt(name, cooldown = 0) {
+        if (!this.promptSpeaker) { this.say(`audio/prompts/${this.locale}/${name}.mp3`, cooldown); return; }
+        const key = 'prompt:' + name, now = Date.now();
+        if (!this.enabled || now - (this.last.get(key) ?? -Infinity) < cooldown) return;
+        this.last.set(key, now);
+        this.stop(); this.promptSpeaker.speak(name);
+    }
     say(path, cooldown = 0) { this.sequence([path], cooldown); }
     sequence(paths, cooldown = 0) {
         if (!this.enabled || typeof Audio === 'undefined' || !paths.length)
@@ -29,6 +37,7 @@ export class IrisAudio {
         if (now - (this.last.get(paths[0]) ?? -Infinity) < cooldown)
             return;
         this.last.set(paths[0], now);
+        this.promptSpeaker?.stop();
         this.voice?.pause();
         const generation = ++this.generation;
         const next = (index) => {
