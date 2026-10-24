@@ -46,11 +46,6 @@
             <p id="level-label" class="mission-label"></p>
             <h2 id="level-title"></h2>
             <p id="level-intro"></p>
-            <div class="target-box">
-              <span>现在要打印</span>
-              <strong id="target-text"></strong>
-              <p id="target-hint"></p>
-            </div>
             <p id="line-progress" class="line-progress"></p>
           </div>
           <div class="score-row">
@@ -73,6 +68,17 @@
         </aside>
 
         <section class="play-area" aria-label="机械打字机">
+          <div class="target-box">
+            <div class="target-copy">
+              <span class="target-label">现在要打印</span>
+              <strong id="target-text"></strong>
+              <p id="target-hint"></p>
+            </div>
+            <div id="target-picture" class="word-picture">
+              <img id="target-picture-image" src="./illustrations/word-scenes.png" width="1448" height="1086" alt="一只坐着的橘猫，身后翘着尾巴。" decoding="async" />
+            </div>
+            <div id="target-actions" class="target-actions"></div>
+          </div>
           <div id="typewriter" class="typewriter">
             <div class="top-metal">
               <span class="model-stamp">DE LUXE <span>·</span> QUIET TAB</span>

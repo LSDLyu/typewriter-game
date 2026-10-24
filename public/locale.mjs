@@ -50,7 +50,7 @@ export function applyLocale() {
   set(".intro-copy", "Strike each key to put a message on paper. Switch the ribbon and pull the return lever to fill the page.");
   label(".mission-panel", "Missions and settings");
   set(".panel-index", "MISSION FILES / 01—05");
-  set(".target-box span", "TYPE THIS NOW");
+  set(".target-label", "TYPE THIS NOW");
   set(".score-row div:first-child span", "Current score");
   set(".score-row div:last-child span", "Mistakes");
   set(".level-list-wrap h3", "Choose a level");
