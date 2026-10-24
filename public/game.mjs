@@ -1,4 +1,5 @@
 import { targetAudio } from "./target-audio.mjs";
+import { targetPictures } from "./target-pictures.mjs";
 import { IrisAudio } from "./iris-audio.mjs";
 import { MandarinPrompts } from "./mandarin-prompts.mjs";
 import { LEVELS, backspace, createGame, currentLine, returnCarriage, score, stars, typeCharacter } from "./logic.mjs";
@@ -40,6 +41,30 @@ const $ = (id) => document.getElementById(id);
 const machine = $("typewriter");
 const feedback = $("feedback");
 const dialog = $("complete-dialog");
+const picture = $("target-picture");
+const pictureImage = $("target-picture-image");
+let picturedTarget;
+let pictureUnavailable = false;
+function hideUnavailablePicture() {
+  pictureUnavailable = true;
+  picture.hidden = true;
+  picture.closest('.target-box').classList.add('without-picture');
+}
+pictureImage.addEventListener('error', hideUnavailablePicture);
+if (pictureImage.complete && !pictureImage.naturalWidth) hideUnavailablePicture();
+
+function renderPicture(text) {
+  if (picturedTarget === text) return;
+  picturedTarget = text;
+  const scene = targetPictures[text];
+  picture.hidden = !scene || pictureUnavailable;
+  picture.closest('.target-box').classList.toggle('without-picture', picture.hidden);
+  if (!scene) return;
+  picture.dataset.target = text;
+  pictureImage.style.left = `${-scene.column * 100}%`;
+  pictureImage.style.top = `${-scene.row * 100}%`;
+  pictureImage.alt = english ? scene.en : scene.zh;
+}
 
 function readStorage() {
   try {
@@ -168,6 +193,7 @@ function render() {
   $("level-intro").textContent = english ? levelCopy[game.levelIndex].introduction : level.introduction;
   $("target-text").textContent = line.text;
   $("target-hint").textContent = english ? levelCopy[game.levelIndex].hints[game.lineIndex] : line.hint;
+  renderPicture(line.text);
   $("line-progress").textContent = english ? msg.lineProgress(game.lineIndex + 1, level.lines.length, line.ink) : `第 ${game.lineIndex + 1} 行，共 ${level.lines.length} 行${line.ink ? ` · 本行需用${line.ink === "red" ? "红" : "黑"}墨` : ""}`;
   $("score").textContent = String(score(game));
   $("errors").textContent = String(game.errors);
@@ -317,7 +343,7 @@ const listenButton = document.createElement('button');
 listenButton.className = 'secondary-button listen-button';
 listenButton.type = 'button'; listenButton.textContent = english ? 'Listen to this line' : '听一听这一行';
 listenButton.addEventListener('click', () => { if (!settings.sound) { settings.sound = true; $('sound-toggle').checked = true; voice.setEnabled(true); saveStorage(); } readTarget(); });
-$('target-text').after(listenButton);
+$('target-actions').append(listenButton);
 const audioCredit = document.createElement('a');
 audioCredit.href = english ? 'audio/credits-en.html' : 'audio/credits.html';
 audioCredit.textContent = english ? 'Word audio sources' : '单词录音来源';
