@@ -30,7 +30,7 @@ test('all eleven targets resolve to real recordings; Commons words have exact at
 test('both worker locales serve Commons audio and credit pages, rejecting unrelated paths', async () => {
   const env = { ASSETS: { fetch: async request => new Response(new URL(request.url).pathname) } };
   for (const base of ['/games/typewriter', '/en/games/typewriter']) {
-    for (const path of ['/audio/cat.mp3', '/audio/sun.mp3', '/audio/hello.mp3', '/audio/credits.html', '/audio/credits-en.html', '/target-audio.mjs']) {
+    for (const path of ['/game-shell.js', '/mandarin-prompts.mjs', '/audio/cat.mp3', '/audio/sun.mp3', '/audio/hello.mp3', '/audio/credits.html', '/audio/credits-en.html', '/target-audio.mjs']) {
       const result = await worker.fetch(new Request('https://edu.alading.org' + base + path), env);
       assert.equal(result.status, 200);
       assert.equal(await result.text(), path);
