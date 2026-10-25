@@ -1,3 +1,4 @@
+import { allowsAudio, subscribeAudio } from './site-audio.mjs';
 import { targetAudio } from "./target-audio.mjs";
 import { targetPictures } from "./target-pictures.mjs";
 import { IrisAudio } from "./iris-audio.mjs";
@@ -35,10 +36,15 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) voice
 let game = createGame(0);
 let ink = "black";
 let audioContext;
+subscribeAudio(() => { voice.stop(); if (!allowsAudio('effects')) void audioContext?.suspend(); });
 let hammerTimer;
 
 const $ = (id) => document.getElementById(id);
 const machine = $("typewriter");
+const missionMedia = matchMedia('(max-width: 950px)');
+$('mission-panel').open = !missionMedia.matches;
+missionMedia.addEventListener('change', event => { $('mission-panel').open = !event.matches; });
+if (english) document.querySelector('.summary-label').textContent = 'Mission, levels & settings';
 const feedback = $("feedback");
 const dialog = $("complete-dialog");
 const picture = $("target-picture");
@@ -90,6 +96,7 @@ function announce(message) {
 function playSound(kind) {
   if (!settings.sound) return;
   if (kind === "wrong") { voice.effect("04_gentle_retry", 1500); voice.prompt("typewriter_fix", 12000); return; }
+  if (!allowsAudio('effects')) return;
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
   try {
@@ -186,6 +193,7 @@ function renderLevels() {
 }
 
 function render() {
+  $('mission-summary-level').textContent = (english ? 'Level ' : '第 ') + (game.levelIndex + 1) + (english ? ' / 5' : ' / 5 关');
   const level = LEVELS[game.levelIndex];
   const line = currentLine(game);
   $("level-label").textContent = `${String(game.levelIndex + 1).padStart(2, "0")} / 05 · ${english ? levelCopy[game.levelIndex].label : level.label}`;
@@ -342,7 +350,7 @@ function buildKeyboard() {
 const listenButton = document.createElement('button');
 listenButton.className = 'secondary-button listen-button';
 listenButton.type = 'button'; listenButton.textContent = english ? 'Listen to this line' : '听一听这一行';
-listenButton.addEventListener('click', () => { if (!settings.sound) { settings.sound = true; $('sound-toggle').checked = true; voice.setEnabled(true); saveStorage(); } readTarget(); });
+listenButton.addEventListener('click', () => { if (!allowsAudio('voice')) { announce(english ? 'Turn on voice in the shared sound settings, then listen again.' : '先在页尾声音设置里开启语音、取消静音，再来听一听。'); return; } if (!settings.sound) { settings.sound = true; $('sound-toggle').checked = true; voice.setEnabled(true); saveStorage(); } readTarget(); });
 $('target-actions').append(listenButton);
 const audioCredit = document.createElement('a');
 audioCredit.href = english ? 'audio/credits-en.html' : 'audio/credits.html';
@@ -393,9 +401,11 @@ for (const [setting, elementId] of [["sound", "sound-toggle"], ["vibration", "vi
 
 window.addEventListener("keydown", (event) => {
   if (event.ctrlKey || event.metaKey || event.altKey || dialog.open) return;
-  const target = event.target;
-  if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target?.isContentEditable) return;
-  if ((event.key === "Enter" || event.key === " ") && (target instanceof HTMLButtonElement || target instanceof HTMLAnchorElement || target instanceof HTMLElement && target.tagName === "SUMMARY")) return;
+  // Shadow DOM retargets header/footer events to their host. Inspect the full
+  // path so native links, controls and editable fields retain keyboard access.
+  const path = event.composedPath();
+  if (event.defaultPrevented || path.some(target => target instanceof HTMLElement && (target.matches('input, textarea, select') || target.isContentEditable))) return;
+  if ((event.key === "Enter" || event.key === " ") && path.some(target => target instanceof HTMLElement && target.matches('button, a, summary, [role="button"]'))) return;
   if (event.key === "Backspace") {
     event.preventDefault();
     handleBackspace();

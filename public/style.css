@@ -223,3 +223,23 @@ kbd { font: 12px var(--mono); border: 1px solid currentColor; border-radius: 2px
 .audio-credit { display: block; width: fit-content; padding: 12px 0; font-size: .85rem; text-underline-offset: 3px; }
 .listen-button { min-height: 44px; }
 .voice-note { margin:4px 0 12px; color:#49554e; font-size:12px; line-height:1.65; }
+
+/* Keep the current picture and keyboard close on small screens. */
+.mission-summary { display:none; }
+#line-progress,.score-row span,.panel-index,.level-status { color:#49574e; }
+@media(max-width:950px){
+ .mission-panel{display:block;padding:0;margin:0 0 14px;border-block:1px solid #52625855;}
+ .mission-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:48px;padding:8px 4px;color:#174f45;font-weight:700;font-size:13px;cursor:pointer;}
+ .mission-summary::after{content:'＋';font-size:20px;}.mission-panel[open]>.mission-summary::after{content:'−';}
+ .mission-content{padding:12px 4px;}.mission-panel:not([open])>.mission-content{display:none;}
+ .game-layout{gap:0;}.intro{margin-bottom:12px;}
+}
+@media(max-width:600px){
+ .page-shell{padding-top:16px;}.eyebrow{margin-bottom:8px;}h1{font-size:32px;margin-bottom:8px;}.intro-copy{font-size:12px;line-height:1.5;margin:0;}
+ .target-box{margin-bottom:14px;}.carriage-zone{height:140px;}.mechanism{display:none;}.paper-lines{padding-top:12px;}.paper-footer{display:none;}
+ .ribbon-controls{font-size:11px;}.ribbon-switch button{min-height:40px;min-width:52px;padding:6px 10px;}.keyboard-shell{padding:8px;}
+ .machine-footer{display:none;}.keyboard-note{font-size:11px;}.play-controls button{min-height:44px;}
+}
+.serial-stamp,.ribbon-controls>span{color:#fffdf3}.keyboard-note{color:#49574e}
+
+.model-stamp,.serial-stamp{color:#fffdf5;opacity:1}
