@@ -3,8 +3,9 @@ import { targetAudio } from "./target-audio.mjs";
 import { targetPictures } from "./target-pictures.mjs";
 import { IrisAudio } from "./iris-audio.mjs";
 import { MandarinPrompts } from "./mandarin-prompts.mjs";
-import { LEVELS, backspace, createGame, currentLine, returnCarriage, score, stars, typeCharacter } from "./logic.mjs";
-import { applyLocale, english, levelCopy, msg } from "./locale.mjs";
+import { ALLOWED_CHARACTERS, LEVELS, backspace, createGame, currentLine, returnCarriage, score, stars, typeCharacter } from "./logic.mjs?v=20261025-keys";
+import { keyboardRows } from './keyboard.mjs';
+import { applyLocale, english, levelCopy, msg } from "./locale.mjs?v=20261025-keys";
 
 applyLocale();
 document.querySelector(english ? "#lang-en" : "#lang-zh").setAttribute("aria-current", "page");
@@ -25,6 +26,7 @@ const settings = {
   vibration: stored.settings?.vibration !== false && canVibrate,
   motion: stored.settings?.motion !== false,
   chineseVoice: stored.settings?.chineseVoice !== false,
+  keyboardZoom: stored.settings?.keyboardZoom === true,
 };
 const mandarin = english ? null : new MandarinPrompts();
 mandarin?.setEnabled(settings.chineseVoice);
@@ -38,6 +40,7 @@ let ink = "black";
 let audioContext;
 subscribeAudio(() => { voice.stop(); if (!allowsAudio('effects')) void audioContext?.suspend(); });
 let hammerTimer;
+let shiftLatched = false, shiftHeld = false;
 
 const $ = (id) => document.getElementById(id);
 const machine = $("typewriter");
@@ -122,7 +125,7 @@ function vibrate(pattern) {
   if (settings.vibration && canVibrate) navigator.vibrate(pattern);
 }
 
-function animateStrike(character) {
+function animateStrike(character, tappedKey) {
   if (settings.motion) {
     machine.classList.remove("strike");
     void machine.offsetWidth;
@@ -130,7 +133,8 @@ function animateStrike(character) {
     clearTimeout(hammerTimer);
     hammerTimer = setTimeout(() => machine.classList.remove("strike"), 210);
   }
-  const key = [...document.querySelectorAll(".key")].find((button) => button.dataset.key === character);
+  const keys = [...document.querySelectorAll('.key')];
+  const key = tappedKey || keys.find(button => button.dataset.key === character) || keys.find(button => button.dataset.shifted === character);
   if (key) {
     key.classList.add("pressed");
     setTimeout(() => key.classList.remove("pressed"), 110);
@@ -215,6 +219,8 @@ function render() {
 
 function startLevel(index) {
   if (index > progress.unlocked) return;
+  shiftLatched = shiftHeld = false;
+  renderShift();
   voice.stop();
   game = createGame(index);
   readTarget();
@@ -224,7 +230,7 @@ function startLevel(index) {
   render();
 }
 
-function handleCharacter(character) {
+function handleCharacter(character, tappedKey) {
   if (dialog.open) return;
   if (game.phase === "return") {
     announce(msg?.lineReady || "这一行已经打好，请拉动回车杆。");
@@ -238,7 +244,7 @@ function handleCharacter(character) {
     return;
   }
   const imprint = game.imprints.at(-1);
-  animateStrike(imprint.char);
+  animateStrike(imprint.char, tappedKey);
   playSound(imprint.correct ? "key" : "wrong");
   if (!imprint.correct) vibrate([12, 25, 12]);
   if (game.phase === "return") { announce(msg?.correct || "打对了！现在拉动回车杆换行。"); voice.prompt("typewriter_return"); }
@@ -315,37 +321,82 @@ function handleReturn() {
 
 function buildKeyboard() {
   const keyboard = $("keyboard");
-  for (const letters of ["QWERTYUIOP", "ASDFGHJKL", "ZXCVBNM"]) {
+  keyboard.addEventListener('focusin', () => document.documentElement.classList.add('typing-focus'));
+  keyboard.addEventListener('focusout', event => {
+    if (!keyboard.contains(event.relatedTarget)) document.documentElement.classList.remove('typing-focus');
+  });
+  const actionLabels = english ? { backspace:'Backspace', tab:'Type space · TAB', return:'Finish this line · Return', shift:'Shift · use the upper symbol' } : { backspace:'退格修正', tab:'输入空格 · TAB', return:'完成本行并换行', shift:'换档 · 输入上方符号' };
+  for (const [index, keys] of keyboardRows.entries()) {
     const row = document.createElement("div");
-    row.className = "keyboard-row";
-    for (const letter of letters) {
+    row.className = `keyboard-row keyboard-row-${index}`;
+    for (const key of keys) {
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "key";
-      button.dataset.key = letter;
-      button.textContent = letter;
-      button.setAttribute("aria-label", english ? `Type letter ${letter}` : `输入字母 ${letter}`);
-      button.addEventListener("click", () => handleCharacter(letter));
+      button.className = 'key' + (key.action ? ' key-control' : '') + (key.shifted ? ' key-symbol' : '');
+      const cap = document.createElement('span'); cap.className = 'key-cap'; cap.setAttribute('aria-hidden','true');
+      if (key.shifted && key.shifted !== key.key) {
+        const upper = document.createElement('span'); upper.className = 'key-upper'; upper.textContent = key.shifted; cap.append(upper);
+      }
+      const main = document.createElement('span'); main.className = 'key-legend'; main.textContent = key.label || key.key; cap.append(main); button.append(cap);
+      if (key.action) {
+        button.dataset.action = key.action; button.setAttribute('aria-label',actionLabels[key.action]); button.title = actionLabels[key.action];
+        if (key.action === 'shift') button.setAttribute('aria-pressed','false');
+        button.addEventListener('click', () => {
+          if (dialog.open) return;
+          button.classList.add('pressed'); setTimeout(() => button.classList.remove('pressed'),110);
+          if (key.action === 'backspace') handleBackspace();
+          if (key.action === 'return') handleReturn();
+          if (key.action === 'tab') { handleCharacter(' ',button); shiftLatched=false; renderShift(); }
+          if (key.action === 'shift') { shiftLatched = !shiftLatched; playSound('key'); renderShift(); }
+        });
+      } else {
+        button.dataset.key = key.key;
+        if (key.shifted) button.dataset.shifted = key.shifted;
+        button.addEventListener('click', () => {
+          handleCharacter((shiftLatched || shiftHeld) && key.shifted ? key.shifted : key.key,button);
+          shiftLatched = false; renderShift();
+        });
+      }
       row.append(button);
     }
     keyboard.append(row);
   }
   const row = document.createElement("div");
-  row.className = "keyboard-row";
-  for (const [character, label, className] of [[" ", english ? "SPACE" : "SPACE · 空格", "wide"], [".", ".", "special"]]) {
+  row.className = "keyboard-row space-row";
+  for (const [character, label, className] of [[" ", english ? "SPACE" : "SPACE · 空格", "wide"]]) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `key ${className}`;
     button.dataset.key = character;
-    button.textContent = label;
+    const cap = document.createElement('span'); cap.className = 'key-cap'; cap.textContent = label; cap.setAttribute('aria-hidden','true'); button.append(cap);
     button.setAttribute("aria-label", english ? (character === " " ? "Type space" : "Type period") : (character === " " ? "输入空格" : "输入句点"));
-    button.addEventListener("click", () => handleCharacter(character));
+    button.addEventListener("click", () => { handleCharacter(character,button); shiftLatched=false; renderShift(); });
     row.append(button);
   }
   keyboard.append(row);
   const bars = $("typebars");
   for (let index = 0; index < 25; index += 1) bars.append(document.createElement("span"));
+  renderShift();
 }
+
+function renderShift() {
+  const shifted = shiftLatched || shiftHeld;
+  machine.classList.toggle('shifted',shifted);
+  document.querySelectorAll('.key[data-action="shift"]').forEach(button => button.setAttribute('aria-pressed',String(shifted)));
+  document.querySelectorAll('.key[data-key]').forEach(button => {
+    const char = shifted && button.dataset.shifted ? button.dataset.shifted : button.dataset.key;
+    const name = char === ' ' ? (english ? 'Type space' : '输入空格') : char === '.' ? (english ? 'Type period' : '输入句点') : english ? `Type ${/^[A-Z]$/.test(char) ? 'letter ' : ''}${char}` : `输入${/^[A-Z]$/.test(char) ? '字母' : /^[0-9]$/.test(char) ? '数字' : '符号'} ${char}`;
+    button.setAttribute('aria-label',name); button.title = name;
+  });
+}
+function renderKeyboardZoom() {
+  document.querySelector('.keyboard-shell').classList.toggle('large-keycaps',settings.keyboardZoom);
+  $('keyboard-zoom').setAttribute('aria-pressed',String(settings.keyboardZoom));
+  $('keyboard-zoom').textContent = settings.keyboardZoom ? (english ? 'Show whole keyboard' : '显示完整键盘') : (english ? 'Enlarge keycaps' : '放大键帽');
+  $('keyboard-pan-note').hidden = !settings.keyboardZoom;
+}
+$('keyboard-zoom').addEventListener('click', () => { settings.keyboardZoom = !settings.keyboardZoom; renderKeyboardZoom(); saveStorage(); });
+renderKeyboardZoom();
 
 const listenButton = document.createElement('button');
 listenButton.className = 'secondary-button listen-button';
@@ -371,6 +422,12 @@ if (!english) {
   });
 }
 buildKeyboard();
+// Keep keyboard focus clear of the sticky word/picture card on small screens.
+if (typeof ResizeObserver !== 'undefined') {
+  new ResizeObserver(([entry]) => {
+    document.querySelector('.play-area').style.setProperty('--target-height', `${entry.target.getBoundingClientRect().height}px`);
+  }).observe(document.querySelector('.target-box'));
+}
 $("return-lever").addEventListener("click", handleReturn);
 $("return-button").addEventListener("click", handleReturn);
 $("backspace-button").addEventListener("click", handleBackspace);
@@ -405,6 +462,7 @@ window.addEventListener("keydown", (event) => {
   // path so native links, controls and editable fields retain keyboard access.
   const path = event.composedPath();
   if (event.defaultPrevented || path.some(target => target instanceof HTMLElement && (target.matches('input, textarea, select') || target.isContentEditable))) return;
+  if (event.key === 'Shift') { shiftHeld = true; renderShift(); return; }
   if ((event.key === "Enter" || event.key === " ") && path.some(target => target instanceof HTMLElement && target.matches('button, a, summary, [role="button"]'))) return;
   if (event.key === "Backspace") {
     event.preventDefault();
@@ -412,10 +470,12 @@ window.addEventListener("keydown", (event) => {
   } else if (event.key === "Enter") {
     event.preventDefault();
     handleReturn();
-  } else if (/^[a-zA-Z .]$/.test(event.key)) {
+  } else if (ALLOWED_CHARACTERS.test(event.key.toUpperCase())) {
     event.preventDefault();
     handleCharacter(event.key);
   }
 });
+window.addEventListener('keyup',event => { if (event.key === 'Shift') { shiftHeld=false; renderShift(); } });
+window.addEventListener('blur',() => { shiftHeld=shiftLatched=false; renderShift(); });
 
 render();

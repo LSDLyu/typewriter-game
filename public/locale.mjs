@@ -56,7 +56,7 @@ export function applyLocale() {
   set(".level-list-wrap h3", "Choose a level");
   label("#level-list", "Choose a level");
   set(".how-to summary", "How to play & settings");
-  set(".how-to > p", "Type with a physical keyboard or tap the round keys. Use Backspace to correct a mistake. When a line is right, pull the return lever.");
+  set(".how-to > p", "Type with a physical keyboard or tap the vintage keycaps. Use Backspace to correct a mistake. When a line is right, pull the return lever. Tap ⇧ to type a key’s upper symbol.");
   const settingLabels = document.querySelectorAll(".settings label");
   ["Game sound", "Gentle vibration", "Completion animation"].forEach((value, index) => settingLabels[index]?.append(document.createTextNode(" " + value)));
   settingLabels.forEach((item) => { for (const node of [...item.childNodes]) if (node.nodeType === Node.TEXT_NODE && /[\u3400-\u9fff]/.test(node.textContent)) node.remove(); });
@@ -70,6 +70,9 @@ export function applyLocale() {
   set('[data-ink="black"]', "BLACK");
   set('[data-ink="red"]', "RED");
   label("#keyboard", "On-screen typewriter keyboard");
+  label("#keyboard-viewport", "On-screen keyboard; scroll sideways when enlarged");
+  set(".keyboard-tools > span", "MECHANICAL KEYS / QWERTY");
+  set("#keyboard-pan-note", "Slide sideways to find the next key. Landscape gives you more room.");
   set("#backspace-button", "Backspace ⌫");
   set("#return-button", "Pull return lever ↵");
   set("#feedback", "Strike the first key to make the paper speak.");

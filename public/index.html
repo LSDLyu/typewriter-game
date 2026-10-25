@@ -6,8 +6,8 @@
     <meta name="theme-color" content="#f4ecde" />
     <meta name="description" content="用复古机械打字机完成英文单词和句子任务。敲键、换色带、拉回车杆，五关逐步解锁。" />
     <title>纸上电报局｜机械打字机游戏｜自得学园</title>
-    <link rel="stylesheet" href="./style.css" />
-    <script type="module" src="./game.mjs"></script>
+    <link rel="stylesheet" href="./style.css?v=20261025-keys" />
+    <script type="module" src="./game.mjs?v=20261025-keys"></script>
     <script src="game-shell.js" data-zide-game="typewriter" defer></script>
   </head>
   <body>
@@ -60,7 +60,7 @@
           </div>
           <details class="how-to">
             <summary>玩法与体验设置</summary>
-            <p>按实体键盘或屏幕上的圆形键帽输入。输错时用退格键修正；整行正确后，拉动回车杆进入下一行。</p>
+            <p>按实体键盘或屏幕上的复古键帽输入。输错时用退格键修正；整行正确后，拉动回车杆进入下一行。⇧ 换档键可输入键帽上方的符号。</p>
             <div class="settings">
               <label><input id="sound-toggle" type="checkbox" checked /> 游戏声音</label>
               <label><input id="vibration-toggle" type="checkbox" checked /> 轻量震动</label>
@@ -116,11 +116,13 @@
               </div>
               <span id="ink-note" class="ink-note">黑色墨迹</span>
             </div>
+            <div class="keyboard-tools"><span>机械键盘 / QWERTY</span><button id="keyboard-zoom" type="button" aria-pressed="false" aria-controls="keyboard-viewport">放大键帽</button></div>
             <div class="keyboard-shell">
-              <div class="key-row side-row"><span>CL</span><span>SET</span></div>
-              <div id="keyboard" class="keyboard" aria-label="屏幕打字机键盘"></div>
+              <div class="side-row" aria-hidden="true"><span>CL</span><span>SET</span></div>
+              <div id="keyboard-viewport" class="keyboard-viewport" role="group" aria-label="屏幕键盘，放大后可左右滑动" aria-describedby="keyboard-pan-note"><div id="keyboard" class="keyboard" aria-label="屏幕打字机键盘"></div></div>
               <div class="machine-footer"><span>UNDERWOOD STYLE</span><span>FINGER FORM KEYS</span></div>
             </div>
+            <p id="keyboard-pan-note" class="keyboard-pan-note" hidden>左右滑动，寻找下一枚按键；横屏可以看到更多。</p>
           </div>
           <div class="play-controls">
             <button id="backspace-button" class="secondary-button" type="button">退格修正 <kbd>⌫</kbd></button>

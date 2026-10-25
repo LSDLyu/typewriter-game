@@ -51,9 +51,26 @@ test("the ribbon challenge checks ink color as well as letters", () => {
 
 test("invalid input and locked phases leave the game unchanged", () => {
   let game = createGame(0);
-  assert.equal(typeCharacter(game, "1"), game);
+  assert.equal(typeCharacter(game, "你"), game);
   game = typeText(game, "CAT");
   assert.equal(typeCharacter(game, "S"), game);
   assert.equal(typeCharacter(game, "S", "red"), game);
   assert.throws(() => createGame(LEVELS.length), RangeError);
+});
+
+test('number and symbol keys print correctable mistakes without changing the word missions', () => {
+  let game = createGame(0);
+  for (const character of ['2', '#', '½', '?']) {
+    const mistakes = game.errors;
+    game = typeCharacter(game, character);
+    assert.equal(game.imprints[0].char, character);
+    assert.equal(game.imprints[0].correct, false);
+    assert.equal(game.errors, mistakes + 1);
+    game = backspace(game);
+    assert.equal(game.imprints.length, 0);
+  }
+  game = typeText(game, 'CAT');
+  assert.equal(game.phase, 'return');
+  game = returnCarriage(game);
+  assert.equal(game.lineIndex, 1);
 });
