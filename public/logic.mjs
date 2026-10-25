@@ -47,7 +47,7 @@ export const LEVELS = [
   },
 ];
 
-export const ALLOWED_CHARACTERS = /^[A-Z .]$/;
+export const ALLOWED_CHARACTERS = /^[A-Z0-9 .,\x22#$%&'()*!\-/:;?@¼½¢]$/;
 
 export function createGame(levelIndex) {
   if (!Number.isInteger(levelIndex) || levelIndex < 0 || levelIndex >= LEVELS.length) {
