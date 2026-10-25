@@ -1,3 +1,4 @@
+import { allowsAudio } from './site-audio.mjs';
 /** Iris recordings: one narration channel, bounded effects, no autoplay on load. */
 export class IrisAudio {
     base;
@@ -25,13 +26,13 @@ export class IrisAudio {
     prompt(name, cooldown = 0) {
         if (!this.promptSpeaker) { this.say(`audio/prompts/${this.locale}/${name}.mp3`, cooldown); return; }
         const key = 'prompt:' + name, now = Date.now();
-        if (!this.enabled || now - (this.last.get(key) ?? -Infinity) < cooldown) return;
+        if (!this.enabled || !allowsAudio('voice') || now - (this.last.get(key) ?? -Infinity) < cooldown) return;
         this.last.set(key, now);
         this.stop(); this.promptSpeaker.speak(name);
     }
     say(path, cooldown = 0) { this.sequence([path], cooldown); }
     sequence(paths, cooldown = 0) {
-        if (!this.enabled || typeof Audio === 'undefined' || !paths.length)
+        if (!this.enabled || !allowsAudio('voice') || typeof Audio === 'undefined' || !paths.length)
             return;
         const now = Date.now();
         if (now - (this.last.get(paths[0]) ?? -Infinity) < cooldown)
@@ -41,7 +42,7 @@ export class IrisAudio {
         this.voice?.pause();
         const generation = ++this.generation;
         const next = (index) => {
-            if (!this.enabled || generation !== this.generation || index >= paths.length)
+            if (!this.enabled || !allowsAudio('voice') || generation !== this.generation || index >= paths.length)
                 return;
             const audio = new Audio(this.base + paths[index]);
             this.voice = audio;
@@ -55,7 +56,7 @@ export class IrisAudio {
         next(0);
     }
     effect(name, cooldown = 150) {
-        if (!this.enabled || typeof Audio === 'undefined')
+        if (!this.enabled || !allowsAudio('effects') || typeof Audio === 'undefined')
             return;
         const now = Date.now();
         if (now - (this.last.get(name) ?? -Infinity) < cooldown || this.effects.size >= 3)

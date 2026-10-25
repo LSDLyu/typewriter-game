@@ -37,7 +37,9 @@
       </section>
 
       <div class="game-layout">
-        <aside class="mission-panel" aria-label="任务与设置">
+        <details class="mission-panel" id="mission-panel" open>
+          <summary class="mission-summary"><span class="summary-label">任务、关卡与设置</span><span id="mission-summary-level"></span></summary>
+          <div class="mission-content">
           <div class="panel-heading">
             <span class="panel-index">任务档案 / 01—05</span>
             <span class="panel-rule" aria-hidden="true"></span>
@@ -65,7 +67,8 @@
               <label><input id="motion-toggle" type="checkbox" checked /> 完成动画</label>
             </div>
           </details>
-        </aside>
+          </div>
+        </details>
 
         <section class="play-area" aria-label="机械打字机">
           <div class="target-box">
@@ -75,7 +78,7 @@
               <p id="target-hint"></p>
             </div>
             <div id="target-picture" class="word-picture">
-              <img id="target-picture-image" src="./illustrations/word-scenes.png" width="1448" height="1086" alt="一只坐着的橘猫，身后翘着尾巴。" decoding="async" />
+              <picture><source srcset="./illustrations/word-scenes.webp" type="image/webp"/><img id="target-picture-image" src="./illustrations/word-scenes.png" width="1448" height="1086" alt="一只坐着的橘猫，身后翘着尾巴。" decoding="async" /></picture>
             </div>
             <div id="target-actions" class="target-actions"></div>
           </div>
