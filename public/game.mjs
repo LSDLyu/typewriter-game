@@ -395,7 +395,7 @@ renderKeyboardZoom();
 const listenButton = document.createElement('button');
 listenButton.className = 'secondary-button listen-button';
 listenButton.type = 'button'; listenButton.textContent = english ? 'Listen to this line' : '听一听这一行';
-listenButton.addEventListener('click', () => { if (!allowsAudio('voice')) { announce(english ? 'Turn on voice in the shared sound settings, then listen again.' : '先在页尾声音设置里开启语音、取消静音，再来听一听。'); return; } readTarget(); });
+listenButton.addEventListener('click', () => { if (!allowsAudio('voice')) { announce(english ? 'Turn on voice in the shared sound settings, then listen again.' : '先用顶部开关取消静音，再在页尾的“声音设置”里打开语音。'); return; } readTarget(); });
 $('target-actions').append(listenButton);
 const audioCredit = document.createElement('a');
 audioCredit.href = english ? 'audio/credits-en.html' : 'audio/credits.html';
