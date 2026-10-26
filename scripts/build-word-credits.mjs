@@ -16,7 +16,7 @@ for (const word of ['cat', 'sun', 'hello']) {
 writeFileSync(new URL('target-audio.mjs', root), '// Paths are relative to the shared Iris narration channel (iris/).\nexport const targetAudio = ' + JSON.stringify(targetAudio, null, 2) + ';\n');
 for (const en of [false, true]) {
   const title = en ? 'Word audio sources' : '单词录音来源';
-  const intro = en ? 'CAT, SUN and HELLO use human US English recordings from Wikimedia Commons, Wikipedia’s sister media repository. The eight English phrases and English prompts retain Iris recordings. Chinese instructions use an optional Mandarin device voice.' : 'CAT、SUN 和 HELLO 使用维基共享资源（Wikimedia Commons，维基百科的姊妹媒体库）的真人美式英语录音。8 段完整英文短句和英文提示保留 Iris 录音。中文提示可选用设备的普通话音色。';
+  const intro = en ? 'CAT, SUN and HELLO use human US English recordings from Wikimedia Commons, Wikipedia’s sister media repository. The eight English phrases and game prompts use Iris English recordings.' : 'CAT、SUN 和 HELLO 使用维基共享资源（Wikimedia Commons，维基百科的姊妹媒体库）的真人美式英语录音。8 段完整英文短句和游戏提示使用 Iris 英文录音。';
   const note = en ? 'Converted to MP3 with volume adjustment; pronunciation, speed and pitch are unchanged. Each file retains the licensing status shown below.' : '录音已转为 MP3 并调整音量；发音内容、语速和音高未改动。每段录音保留下面标明的许可或公有领域状态。';
   const cards = ['cat','sun','hello'].map(word => {
     const c = credits[word];
