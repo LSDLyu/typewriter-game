@@ -2,10 +2,9 @@ import { allowsAudio, subscribeAudio } from './site-audio.mjs';
 import { targetAudio } from "./target-audio.mjs";
 import { targetPictures } from "./target-pictures.mjs";
 import { IrisAudio } from "./iris-audio.mjs";
-import { MandarinPrompts } from "./mandarin-prompts.mjs";
-import { ALLOWED_CHARACTERS, LEVELS, backspace, createGame, currentLine, returnCarriage, score, stars, typeCharacter } from "./logic.mjs?v=20261025-keys";
+import { ALLOWED_CHARACTERS, LEVELS, backspace, createGame, currentLine, returnCarriage, score, stars, typeCharacter } from "./logic.mjs?v=20261026-audio";
 import { keyboardRows } from './keyboard.mjs';
-import { applyLocale, english, levelCopy, msg } from "./locale.mjs?v=20261025-keys";
+import { applyLocale, english, levelCopy, msg } from "./locale.mjs?v=20261026-audio";
 
 applyLocale();
 document.querySelector(english ? "#lang-en" : "#lang-zh").setAttribute("aria-current", "page");
@@ -22,16 +21,12 @@ const progress = {
   best: Array.isArray(stored.best) ? stored.best.slice(0, LEVELS.length) : [],
 };
 const settings = {
-  sound: stored.settings?.sound !== false,
   vibration: stored.settings?.vibration !== false && canVibrate,
   motion: stored.settings?.motion !== false,
-  chineseVoice: stored.settings?.chineseVoice !== false,
   keyboardZoom: stored.settings?.keyboardZoom === true,
 };
-const mandarin = english ? null : new MandarinPrompts();
-mandarin?.setEnabled(settings.chineseVoice);
-const voice = new IrisAudio('./iris/', english ? 'en' : 'zh', mandarin);
-voice.setEnabled(settings.sound);
+// Fixed English encouragement avoids device-dependent polyphonic readings.
+const voice = new IrisAudio('./iris/', 'en');
 
 function readTarget() { const file = targetAudio[currentLine(game).text]; if (file) voice.say(file); }
 document.addEventListener('visibilitychange', () => { if (document.hidden) voice.stop(); });
@@ -97,8 +92,7 @@ function announce(message) {
 }
 
 function playSound(kind) {
-  if (!settings.sound) return;
-  if (kind === "wrong") { voice.effect("04_gentle_retry", 1500); voice.prompt("typewriter_fix", 12000); return; }
+  if (kind === "wrong") { voice.effect("04_gentle_retry", 1500); voice.prompt("take_your_time", 12000); return; }
   if (!allowsAudio('effects')) return;
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return;
@@ -247,7 +241,7 @@ function handleCharacter(character, tappedKey) {
   animateStrike(imprint.char, tappedKey);
   playSound(imprint.correct ? "key" : "wrong");
   if (!imprint.correct) vibrate([12, 25, 12]);
-  if (game.phase === "return") { announce(msg?.correct || "打对了！现在拉动回车杆换行。"); voice.prompt("typewriter_return"); }
+  if (game.phase === "return") { announce(msg?.correct || "打对了！现在拉动回车杆换行。"); voice.prompt("common_correct"); }
   else if (!imprint.correct) {
     const expected = currentLine(game).text[game.imprints.length - 1];
     announce(english ? msg.wrong(expected === " " ? "Space" : expected, currentLine(game).ink && ink !== currentLine(game).ink ? currentLine(game).ink : "") : `这里应输入 ${expected === " " ? "空格" : expected}${currentLine(game).ink && ink !== currentLine(game).ink ? `，并切换${currentLine(game).ink === "red" ? "红" : "黑"}墨` : ""}。用退格键修正。`);
@@ -401,26 +395,13 @@ renderKeyboardZoom();
 const listenButton = document.createElement('button');
 listenButton.className = 'secondary-button listen-button';
 listenButton.type = 'button'; listenButton.textContent = english ? 'Listen to this line' : '听一听这一行';
-listenButton.addEventListener('click', () => { if (!allowsAudio('voice')) { announce(english ? 'Turn on voice in the shared sound settings, then listen again.' : '先在页尾声音设置里开启语音、取消静音，再来听一听。'); return; } if (!settings.sound) { settings.sound = true; $('sound-toggle').checked = true; voice.setEnabled(true); saveStorage(); } readTarget(); });
+listenButton.addEventListener('click', () => { if (!allowsAudio('voice')) { announce(english ? 'Turn on voice in the shared sound settings, then listen again.' : '先在页尾声音设置里开启语音、取消静音，再来听一听。'); return; } readTarget(); });
 $('target-actions').append(listenButton);
 const audioCredit = document.createElement('a');
 audioCredit.href = english ? 'audio/credits-en.html' : 'audio/credits.html';
 audioCredit.textContent = english ? 'Word audio sources' : '单词录音来源';
 audioCredit.className = 'audio-credit';
 listenButton.after(audioCredit);
-if (!english) {
-  const label = document.createElement('label');
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox'; checkbox.id = 'chinese-voice-toggle'; checkbox.checked = settings.chineseVoice;
-  label.append(checkbox, ' 普通话提示');
-  const note = document.createElement('p'); note.className = 'voice-note';
-  note.textContent = '使用设备的普通话音色。没有可用音色时显示文字提示；英文发音使用录音。';
-  $('sound-toggle').closest('label').after(label, note);
-  checkbox.addEventListener('change', () => {
-    settings.chineseVoice = checkbox.checked; mandarin.setEnabled(checkbox.checked); saveStorage();
-    if (checkbox.checked && settings.sound) voice.prompt('common_continue');
-  });
-}
 buildKeyboard();
 // Keep keyboard focus clear of the sticky word/picture card on small screens.
 if (typeof ResizeObserver !== 'undefined') {
@@ -442,7 +423,7 @@ $("next-button").addEventListener("click", () => {
   else startLevel(game.levelIndex + 1);
 });
 
-for (const [setting, elementId] of [["sound", "sound-toggle"], ["vibration", "vibration-toggle"], ["motion", "motion-toggle"]]) {
+for (const [setting, elementId] of [["vibration", "vibration-toggle"], ["motion", "motion-toggle"]]) {
   const input = $(elementId);
   input.checked = settings[setting];
   if (setting === "vibration" && !canVibrate) {
@@ -451,7 +432,6 @@ for (const [setting, elementId] of [["sound", "sound-toggle"], ["vibration", "vi
   }
   input.addEventListener("change", () => {
     settings[setting] = input.checked;
-    if (setting === "sound") { voice.setEnabled(input.checked); if (input.checked) readTarget(); }
     saveStorage();
   });
 }
