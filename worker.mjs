@@ -1,5 +1,5 @@
 const GAME_PATHS = ["/games/typewriter", "/en/games/typewriter"];
-const ASSET_PATHS = new Set(["/keyboard.mjs", "/site-audio.mjs", "/game-shell.js", "/mandarin-prompts.mjs", "/index.html", "/style.css", "/game.mjs", "/logic.mjs", "/locale.mjs", "/iris-audio.mjs", "/target-audio.mjs", "/target-pictures.mjs", "/illustrations/word-scenes.png", "/illustrations/word-scenes.webp", "/audio/credits.html", "/audio/credits-en.html", "/audio/credits.json", "/audio/cat.mp3", "/audio/sun.mp3", "/audio/hello.mp3"]);
+const ASSET_PATHS = new Set(["/illustrations/word-scenes-compact.webp", "/keyboard.mjs", "/site-audio.mjs", "/game-shell.js", "/mandarin-prompts.mjs", "/index.html", "/style.css", "/game.mjs", "/logic.mjs", "/locale.mjs", "/iris-audio.mjs", "/target-audio.mjs", "/target-pictures.mjs", "/illustrations/word-scenes.png", "/illustrations/word-scenes.webp", "/audio/credits.html", "/audio/credits-en.html", "/audio/credits.json", "/audio/cat.mp3", "/audio/sun.mp3", "/audio/hello.mp3"]);
 
 export default {
   async fetch(request, env) {
